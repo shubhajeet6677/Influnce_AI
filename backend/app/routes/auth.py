@@ -1,19 +1,3 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session
-import requests
-import os
-import httpx
-from backend.app.core.database import SessionLocal
-from backend.app.db import crud
-from backend.app.core.auth import create_access_token
-
-router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
     finally:
         db.close()
 
