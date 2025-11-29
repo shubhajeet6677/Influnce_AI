@@ -1,18 +1,20 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Float, Text
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from backend.app.core.database import Base
 
-class User(Base):
-    __tablename__ = "users"
+class UserToken(Base):
+    __tablename__ = "user_tokens"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    access_token = Column(Text, nullable=True)      # short-lived token
+    refresh_token = Column(Text, nullable=True)     # long-lived, used to refresh access_token
+    platform = Column(String, nullable=False)       # 'youtube' / 'instagram'
+    expires_at = Column(DateTime, nullable=True)    # absolute expiry time (optional)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    social_accounts = relationship("SocialAccount", back_populates="user")
+    user = relationship("User", backref="tokens")
 
 
 class SocialAccount(Base):

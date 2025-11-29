@@ -1,11 +1,19 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Float, Text
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-class UserToken(Base):
-    __tablename__ = 'user_tokens'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    access_token = Column(String)
-    platform = Column(string)
-    expires_in = Column(Integer)
+DATABASE_URL = os.getenv("DATABASE_URL")  # postgresql://user:pass@host:port/dbname
+
+engine = create_engine(DATABASE_URL, echo=False)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
