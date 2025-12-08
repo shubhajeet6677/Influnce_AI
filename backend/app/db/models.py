@@ -58,6 +58,8 @@ class SocialAccount(Base):
     platform = Column(String, nullable=False)  # instagram, twitter, or youtube
     account_id = Column(String, unique=True, nullable=False)  # Platform's user ID
     access_token = Column(String, nullable=True)  # OAuth access token
+    refresh_token = Column(String, nullable=True)  # OAuth refresh token
+    expires_at = Column(DateTime, nullable=True)  # Token expiration time
     user_id = Column(Integer, ForeignKey("users.id"))
 
     # Relationships
