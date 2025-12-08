@@ -8,7 +8,7 @@ from sqlalchemy.orm import session
 from backend.app.core.database import SessionLocal
 from backend.app.db.models import PostAnalytics
 from sklearn.model_selection import train_test_split
-from skleam.matrics import mean_absolute_error
+from sklearn.matrics import mean_absolute_error
 
 MODEL_DIR = "ml/models"
 MODEL_PATH = os.path.join(MODEL_DIR, "best_time_predictor.pkl")
