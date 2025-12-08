@@ -58,3 +58,11 @@ def get_all_posts_with_analytics(db: Session, user_id: int):
         .all()
     )
 
+def get_posts_with_analytics_joined(db: Session, user_id: int):
+    return (
+        db.query(models.Post)
+        .join(models.PostAnalytics, models.Post.id == models.PostAnalytics.post_id)
+        .join(models.SocialAccount, models.Post.account_id == models.SocialAccount.id)
+        .filter(models.SocialAccount.user_id == user_id)
+        .all()
+    )
