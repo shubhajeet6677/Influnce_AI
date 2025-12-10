@@ -277,7 +277,8 @@ async def youtube_callback(code: str, db: Session = Depends(get_db)):
         "account_id": channel_id
     }
 
-# ==================== Twitter/X OAuth ====================
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo"
 
 @router.get('/twitter')
 def twitter_auth():

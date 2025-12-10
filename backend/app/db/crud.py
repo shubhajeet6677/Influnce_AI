@@ -1,62 +1,11 @@
-"""
-Database CRUD Operations
-
-This module contains all database operations (Create, Read, Update, Delete).
-These functions are used by the API routes to interact with the database.
-
-Functions are organized by model:
-- User operations
-- Social Account operations
-"""
-
 from sqlalchemy.orm import Session
 from backend.app.db import models
 from datetime import datetime
 
-
-# ==================== User Operations ====================
-
 def get_user(db: Session, user_id: int):
-    """
-    Get a user by ID
-    
-    Args:
-        db: Database session
-        user_id: User's ID
-        
-    Returns:
-        User object or None if not found
-    """
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-
-def get_user_by_email(db: Session, email: str):
-    """
-    Get a user by email address
-    
-    Args:
-        db: Database session
-        email: User's email
-        
-    Returns:
-        User object or None if not found
-    """
-    return db.query(models.User).filter(models.User.email == email).first()
-
-
 def create_user(db: Session, username: str, email: str, hashed_password: str):
-    """
-    Create a new user
-    
-    Args:
-        db: Database session
-        username: Desired username
-        email: User's email
-        hashed_password: Bcrypt hashed password
-        
-    Returns:
-        Created User object
-    """
     user = models.User(username=username, email=email, hashed_password=hashed_password)
     db.add(user)
     db.commit()
@@ -64,24 +13,29 @@ def create_user(db: Session, username: str, email: str, hashed_password: str):
     return user
 
 
-# ==================== Social Account Operations ====================
+def create_social_account(db: Session, user_id: int, platform: str, account_id: str, access_token: str):
+    social = models.SocialAccount(
+        user_id=user_id,
+        platform=platform,
+        account_id=account_id,
+        access_token=access_token
+    )
+    db.add(social)
+    db.commit()
+    db.refresh(social)
+    return social
 
-def get_social_account(db: Session, user_id: int, platform: str):
-    """
-    Get a user's social account for a specific platform
-    
-    Args:
-        db: Database session
-        user_id: User's ID
-        platform: Platform name (instagram, twitter, youtube)
-        
-    Returns:
-        SocialAccount object or None if not found
-    """
-    return db.query(models.SocialAccount).filter(
-        models.SocialAccount.user_id == user_id,
-        models.SocialAccount.platform == platform
-    ).first()
+def get_social_accounts(db: Session, user_id: int):
+    return db.query(models.SocialAccount).filter(models.SocialAccount.user_id == user_id).all()
+
+
+def create_post(db: Session, account_id: int, caption: str, posted_at):
+    post = models.Post(account_id=account_id, caption=caption, posted_at=posted_at)
+    db.add(post)
+    db.commit()
+    db.refresh(post)
+    return post
+
 
 
 def create_or_update_social_account(
@@ -134,7 +88,34 @@ def create_or_update_social_account(
             expires_at=expires_at
         )
         db.add(account)
-    
+ 
+def create_post_analytics(db: Session, post_id: int, likes: int, comments: int, shares: int, views: int):
+    analytics = models.PostAnalytics(
+        post_id=post_id,
+        likes=likes,
+        comments=comments,
+        shares=shares,
+        views=views
+    )
+    db.add(analytics)
     db.commit()
-    db.refresh(account)
-    return account
+    db.refresh(analytics)
+    return analytics
+
+
+def get_all_posts_with_analytics(db: Session, user_id: int):
+    return (
+        db.query(models.PostAnalytics)
+        .join(models.SocialAccount)
+        .filter(models.SocialAccount.user_id == user_id)
+        .all()
+    )
+
+def get_posts_with_analytics_joined(db: Session, user_id: int):
+    return (
+        db.query(models.Post)
+        .join(models.PostAnalytics, models.Post.id == models.PostAnalytics.post_id)
+        .join(models.SocialAccount, models.Post.account_id == models.SocialAccount.id)
+        .filter(models.SocialAccount.user_id == user_id)
+        .all()
+    )
