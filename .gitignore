@@ -67,3 +67,6 @@ alembic/versions/__pycache__/
 .coverage
 htmlcov/
 .pytest_cache/
+# Allow src/lib folder to be tracked
+!src/lib/
+!src/lib/**
